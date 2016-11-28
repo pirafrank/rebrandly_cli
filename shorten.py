@@ -37,7 +37,7 @@ def shorten_url(post_uri,api_token,data):
 
 def list_custom_domains(list_domains_uri,api_token):
 
-    print "Custom domains in your account"
+    print "Listing custom domains in your account..."
 
     params = { 'orderBy':'createdAt','orderDir':'desc',
         'offset':'0','limit':100,'status':'active','type':'user'}
@@ -46,9 +46,11 @@ def list_custom_domains(list_domains_uri,api_token):
     r = requests.get(list_domains_uri, params=params, headers=headers)
 
     if r.status_code == 200:
-        print r.json()
+        reply = r.json()
+        for x in reply:
+            print x['fullName'],', ID:',x['id'],', DNS status:',x['status']['dns']
     else:
-        print "Oops: there was an error. Request exited with code:", r.status_code
+        print "Oops: there was an error! Request exited with code:", r.status_code
 
 def main():
 
@@ -79,24 +81,27 @@ def main():
         print "Exiting..."
         sys.exit()
 
+    # Parse command line options
     parser = OptionParser()
     parser.add_option("-l","--list-domains", action="store_true",
-        dest="list_domains", help="list custom domains information (including IDs)")
+        dest="List_domains", help="list custom domains information (including IDs)")
     parser.add_option("-t","--title", dest="title",
-        help="specify short link title in dashboard")
+        help="Specify short link title in dashboard")
     parser.add_option("-s","--slashtag", dest="slashtag",
-        help="use custom slashtag, e.g. /mytag")
+        help="Use custom slashtag, e.g. 'mytag' so the shorten url is: domain/mytag")
     parser.add_option("-c","--custom-domain", action="store_true",
-        dest="custom_domain", help="shorten url using set custom domain")
+        dest="custom_domain",
+        help="Choose whether to shorten url using favorite custom domain set in config")
     (options, args) = parser.parse_args()
 
     if options.list_domains == True:
         list_custom_domains(list_domains_uri,config['api_token'])
-    elif options.title:
+        sys.exit()
+    if options.title:
         data.update(title=options.title)
-    elif options.slashtag:
+    if options.slashtag:
         data.update(slashtag=options.slashtag)
-    elif options.custom_domain == True:
+    if options.custom_domain == True:
 
         domain_details = {
             'id':config['favorite_custom_domain_id'],
