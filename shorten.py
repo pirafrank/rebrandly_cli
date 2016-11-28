@@ -30,7 +30,8 @@ def shorten_url(post_uri,api_token,data):
 
     if r.status_code == 200:
         print "Success!"
-        print r.json()
+        reply = r.json()
+        print 'Short url is:',reply['shortUrl']
     else:
         print "Oops: there was an error. Request exited with code:", r.status_code
 
@@ -79,30 +80,32 @@ def main():
         sys.exit()
 
     parser = OptionParser()
-    parser.add_option("-l","--list-domains", dest="list_domains", default=False,
-        help="list custom domains information (including IDs)")
+    parser.add_option("-l","--list-domains", action="store_true",
+        dest="list_domains", help="list custom domains information (including IDs)")
     parser.add_option("-t","--title", dest="title",
         help="specify short link title in dashboard")
     parser.add_option("-s","--slashtag", dest="slashtag",
         help="use custom slashtag, e.g. /mytag")
-    parser.add_option("-c","--custom-domain", dest="custom_domain", default=False,
-        help="shorten url using set custom domain")
+    parser.add_option("-c","--custom-domain", action="store_true",
+        dest="custom_domain", help="shorten url using set custom domain")
     (options, args) = parser.parse_args()
 
-    if options.list_domains == True: # @todo this should be doable without url
+    if options.list_domains == True:
         list_custom_domains(list_domains_uri,config['api_token'])
     elif options.title:
         data.update(title=options.title)
     elif options.slashtag:
         data.update(slashtag=options.slashtag)
-    elif options.custom_domain:
+    elif options.custom_domain == True:
 
         domain_details = {
-            'id':favorite_custom_domain_id,
+            'id':config['favorite_custom_domain_id'],
             'ref':'/domains/'+config['favorite_custom_domain_id']
         }
 
         data.update(domain=domain_details)
+
+    print data # debug
     shorten_url(post_uri,config['api_token'],data)
 
 if __name__ == '__main__':
