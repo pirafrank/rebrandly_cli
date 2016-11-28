@@ -5,7 +5,7 @@ import sys
 import urllib2
 import json
 import requests
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 #
 # Sample data
@@ -71,37 +71,39 @@ def main():
         print "Exiting..."
         sys.exit()
 
-    if sys.argv[1]:
+
+    if len(sys.argv)>=2:
         data = {
             'destination':sys.argv[1]
         }
     else:
-        print "Error: no url to shorten specified. Please give one."
+        print "Error: no URL to shorten specified. Please give one."
         print "Use -h or --help to know available options."
         print "Exiting..."
         sys.exit()
 
     # Parse command line options
-    parser = OptionParser()
-    parser.add_option("-l","--list-domains", action="store_true",
-        dest="List_domains", help="list custom domains information (including IDs)")
-    parser.add_option("-t","--title", dest="title",
+    parser = ArgumentParser(description="Shroten URLs using Rebrandly service.")
+    parser.add_argument('url',metavar='URL', nargs=1,
+        help="URL to shorten")
+    parser.add_argument("-l","--list-domains", action="store_true", dest="list_domains",
+        help="list custom domains information (including IDs)")
+    parser.add_argument("-t","--title", dest="title",
         help="Specify short link title in dashboard")
-    parser.add_option("-s","--slashtag", dest="slashtag",
+    parser.add_argument("-s","--slashtag", dest="slashtag",
         help="Use custom slashtag, e.g. 'mytag' so the shorten url is: domain/mytag")
-    parser.add_option("-c","--custom-domain", action="store_true",
-        dest="custom_domain",
+    parser.add_argument("-c","--custom-domain", action="store_true", dest="custom_domain",
         help="Choose whether to shorten url using favorite custom domain set in config")
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
 
-    if options.list_domains == True:
+    if args.list_domains == True:
         list_custom_domains(list_domains_uri,config['api_token'])
         sys.exit()
-    if options.title:
-        data.update(title=options.title)
-    if options.slashtag:
-        data.update(slashtag=options.slashtag)
-    if options.custom_domain == True:
+    if args.title:
+        data.update(title=args.title)
+    if args.slashtag:
+        data.update(slashtag=args.slashtag)
+    if args.custom_domain == True:
 
         domain_details = {
             'id':config['favorite_custom_domain_id'],
