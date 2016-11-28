@@ -54,37 +54,13 @@ def list_custom_domains(list_domains_uri,api_token):
 
 def main():
 
+    # Rebrandly API endpoints
     post_uri = 'https://api.rebrandly.com/v1/links'
     list_domains_uri = 'https://api.rebrandly.com/v1/domains'
 
-    # Load config
-    path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-    try:
-        conf = open(os.path.join(path, 'config.json'), 'r')
-        config = json.loads(conf.read())
-    except IOError as e:
-        print "Error: No config.json found."
-        print "Exiting..."
-        sys.exit()
-    except:
-        print "No file found"
-        print "Exiting..."
-        sys.exit()
-
-
-    if len(sys.argv)>=2:
-        data = {
-            'destination':sys.argv[1]
-        }
-    else:
-        print "Error: no URL to shorten specified. Please give one."
-        print "Use -h or --help to know available options."
-        print "Exiting..."
-        sys.exit()
-
     # Parse command line options
     parser = ArgumentParser(description="Shroten URLs using Rebrandly service.")
-    parser.add_argument('url',metavar='URL', nargs=1,
+    parser.add_argument('url',metavar='URL', nargs='?',
         help="URL to shorten")
     parser.add_argument("-l","--list-domains", action="store_true", dest="list_domains",
         help="list custom domains information (including IDs)")
@@ -94,8 +70,36 @@ def main():
         help="Use custom slashtag, e.g. 'mytag' so the shorten url is: domain/mytag")
     parser.add_argument("-c","--custom-domain", action="store_true", dest="custom_domain",
         help="Choose whether to shorten url using favorite custom domain set in config")
+    parser.add_argument("-j","--config", dest="config_file_path",
+        help="Specify a custom json config file")
     args = parser.parse_args()
 
+    # Load config from json file
+    if args.config_file_path:
+        config_file_path = os.path.normpath(os.path.expanduser(args.config_file_path))
+    else:
+        path = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
+        config_file_path = os.path.join(path, 'config.json')
+
+    try:
+        config = json.loads(open(config_file_path, 'r').read())
+    except IOError as e:
+        print "Error: No .json config file found in",config_file_path
+        print "Exiting..."
+        sys.exit()
+    except:
+        print "Sorry. Unexpected error."
+        print "Exiting..."
+        sys.exit()
+
+    # Handling args
+    if args.url:
+        data = {'destination':args.url}
+    else:
+        print "Error: no URL to shorten specified. Please give one."
+        print "Use -h or --help to know available options."
+        print "Exiting..."
+        sys.exit()
     if args.list_domains == True:
         list_custom_domains(list_domains_uri,config['api_token'])
         sys.exit()
@@ -104,15 +108,13 @@ def main():
     if args.slashtag:
         data.update(slashtag=args.slashtag)
     if args.custom_domain == True:
-
         domain_details = {
             'id':config['favorite_custom_domain_id'],
             'ref':'/domains/'+config['favorite_custom_domain_id']
         }
-
         data.update(domain=domain_details)
 
-    print data # debug
+    # print data # debug
     shorten_url(post_uri,config['api_token'],data)
 
 if __name__ == '__main__':
