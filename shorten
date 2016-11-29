@@ -32,8 +32,10 @@ def shorten_url(post_uri,api_token,data):
         print "Success!"
         reply = r.json()
         print 'Short url is:',reply['shortUrl']
+        return reply['shortUrl']
     else:
         print "Oops: there was an error. Request exited with code:", r.status_code
+        return 'Error'
 
 def list_custom_domains(list_domains_uri,api_token):
 
@@ -49,8 +51,10 @@ def list_custom_domains(list_domains_uri,api_token):
         reply = r.json()
         for x in reply:
             print x['fullName'],', ID:',x['id'],', DNS status:',x['status']['dns']
+        return reply
     else:
         print "Oops: there was an error! Request exited with code:", r.status_code
+        return r.status_code
 
 def main():
 
@@ -59,7 +63,7 @@ def main():
     list_domains_uri = 'https://api.rebrandly.com/v1/domains'
 
     # Parse command line options
-    parser = ArgumentParser(description="Shroten URLs using Rebrandly service.")
+    parser = ArgumentParser(description="Unofficial command line client for rebrandly.com.")
     parser.add_argument('url',metavar='URL', nargs='?',
         help="URL to shorten")
     parser.add_argument("-l","--list-domains", action="store_true", dest="list_domains",

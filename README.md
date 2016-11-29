@@ -2,9 +2,19 @@
 
 This is an unofficial CLI utility for Rebrandly service.
 
+[![asciicast](https://asciinema.org/a/94415.png)](https://asciinema.org/a/94415)
+
 ## Requirements
 
+- A Rebrandly account (ofc!)
 - Python 2.7.x
+
+## Installation
+
+1. Clone the repo
+2. Add the path where you cloned the repo to your ENV vars. Look at the example below.
+
+Example: `export PATH="/francesco/clones/rebrandly_cli:$PATH"`
 
 ## Configuration
 
@@ -14,7 +24,9 @@ This is an unofficial CLI utility for Rebrandly service.
 
 ## Usage
 
-`python shorten.py [OPTIONS] [URL]`
+```
+python shorten [OPTIONS] [URL]
+```
 
 ## Options
 
