@@ -1,8 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import os.path
 import sys
-import urllib2
+import urllib
 import json
 import requests
 from argparse import ArgumentParser
@@ -29,17 +29,17 @@ def shorten_url(post_uri,api_token,data):
     r = requests.post(post_uri, data=json.dumps(data), headers=headers)
 
     if r.status_code == 200:
-        print "Success!"
+        print("Success!")
         reply = r.json()
-        print 'Short url is:',reply['shortUrl']
+        print('Short url is:', reply['shortUrl'])
         return reply['shortUrl']
     else:
-        print "Oops: there was an error. Request exited with code:", r.status_code
+        print("Oops: there was an error. Request exited with code:", r.status_code)
         return 'Error'
 
 def list_custom_domains(list_domains_uri,api_token):
 
-    print "Listing custom domains in your account..."
+    print("Listing custom domains in your account...")
 
     params = { 'orderBy':'createdAt','orderDir':'desc',
         'offset':'0','limit':100,'status':'active','type':'user'}
@@ -50,10 +50,10 @@ def list_custom_domains(list_domains_uri,api_token):
     if r.status_code == 200:
         reply = r.json()
         for x in reply:
-            print x['fullName'],', ID:',x['id'],', DNS status:',x['status']['dns']
+            print(x['fullName'],', ID:',x['id'],', DNS status:',x['status']['dns'])
         return reply
     else:
-        print "Oops: there was an error! Request exited with code:", r.status_code
+        print("Oops: there was an error! Request exited with code:", r.status_code)
         return r.status_code
 
 def main():
@@ -88,21 +88,21 @@ def main():
     try:
         config = json.loads(open(config_file_path, 'r').read())
     except IOError as e:
-        print "Error: No .json config file found in",config_file_path
-        print "Exiting..."
+        print("Error: No .json config file found in",config_file_path)
+        print("Exiting...")
         sys.exit()
     except:
-        print "Sorry. Unexpected error."
-        print "Exiting..."
+        print("Sorry. Unexpected error.")
+        print("Exiting...")
         sys.exit()
 
     # Handling args
     if args.url:
         data = {'destination':args.url}
     else:
-        print "Error: no URL to shorten specified. Please give one."
-        print "Use -h or --help to know available options."
-        print "Exiting..."
+        print("Error: no URL to shorten specified. Please give one.")
+        print("Use -h or --help to know available options.")
+        print("Exiting...")
         sys.exit()
     if args.list_domains == True:
         list_custom_domains(list_domains_uri,config['api_token'])
